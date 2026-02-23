@@ -8,6 +8,7 @@ import announcementRoutes from './routes/announcement.routes.js'
 import reportRoutes from "./routes/reportIssue.routes.js"
 import requestsRoutes from "./routes/request.routes.js"
 import taskRoutes from "./routes/task.routes.js"
+import notificationRoutes from './routes/notification.routes.js'
 
 dotenv.config();
 const app=express();
@@ -20,7 +21,7 @@ app.use('/announcement',announcementRoutes);
 app.use('/reportIssue',reportRoutes);
 app.use('/request',requestsRoutes);
 app.use('/task',taskRoutes);
-
+app.use('/notification',notificationRoutes);
 
 const port=process.env.PORT
 app.listen(port,()=>{

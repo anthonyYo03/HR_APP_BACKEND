@@ -70,7 +70,7 @@ const clearNotifications = async (req, res) => {
   }
 };
 
-export default {
+export const NotificationControllers={
   getNotification,
   notificationCounter,
   markAsRead,
