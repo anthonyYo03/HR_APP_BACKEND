@@ -28,6 +28,10 @@ priority:{
 reportedBy:{type:mongoose.Schema.Types.ObjectId,ref:'User',required:true}
 },{timestamps:true});
 
+reportIssueSchema.index({ reportedBy: 1 });
+reportIssueSchema.index({ title: "text" });
+
+
 const ReportIssue=mongoose.model("ReportIssue",reportIssueSchema);
 
 export default ReportIssue;

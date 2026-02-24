@@ -29,7 +29,7 @@ const createTask = async (req, res) => {
 const getAllTasks=async(req,res)=>{
 
     try {
-const allTasks=await Task.find({});
+const allTasks=await Task.find({}).sort({ createdAt: -1 });
 if(allTasks.length===0){
     return res.status(200).send({message:"Task not found"})
 }
@@ -67,7 +67,7 @@ const getMyTasks=async(req,res)=>{
 const id=req.userId;
 
 try{
-const myTasks=await Task.find({assignedTo:id})
+const myTasks=await Task.find({assignedTo:id}).sort({ createdAt: -1 })
 
 
 

@@ -39,7 +39,7 @@ const createIssue = async (req, res) => {
 
 const getAllIssues = async (req, res) => {
 try{
-const allIssues=await ReportIssue.find({});
+const allIssues=await ReportIssue.find({}).sort({ createdAt: -1 });
 if(allIssues.length===0){
    return res.status(200).send({message:"No issue Found"})
 }
@@ -55,7 +55,7 @@ catch(error){
 const getMyIssues = async (req, res) => {
 const id=req.userId;
 try {
-    const myIssues=await ReportIssue.find({reportedBy:id})
+    const myIssues=await ReportIssue.find({reportedBy:id}).sort({ createdAt: -1 })
     if(myIssues.length===0){
     return res.status(200).send({message:"My issues not found"})    
     }

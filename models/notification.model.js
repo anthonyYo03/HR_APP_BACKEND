@@ -23,5 +23,8 @@ isRead: { type: Boolean, default: false },
 isHidden: {type: Boolean,default: false}
 },{timestamps:true})
 
-const Notification= new mongoose.model("Notification",notificationSchema);
+notificationSchema.index({ recipient: 1, isRead: 1 });
+notificationSchema.index({ relatedId: 1, relatedModel: 1 });
+
+const Notification=mongoose.model("Notification",notificationSchema);
 export default Notification;

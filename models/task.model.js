@@ -61,7 +61,8 @@ taskSchema.pre('save', async function() {
   }
 });
 
-
+taskSchema.index({ createdBy: 1 });
+taskSchema.index({ name: "text" });
 
 
 const Task=mongoose.model("Task",taskSchema);

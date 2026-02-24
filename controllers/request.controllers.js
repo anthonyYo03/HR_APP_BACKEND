@@ -41,7 +41,7 @@ const createRequest = async (req, res) => {
 const getAllRequests=async(req,res)=>{
 
 try {
-    const allRequest=await Request.find({});
+    const allRequest=await Request.find({}).sort({ createdAt: -1 });
 if(allRequest.length===0){
     return res.status(200).send("No Requests Found");
 }
@@ -58,7 +58,7 @@ const getMyRequests=async(req,res)=>{
 
 const id=req.userId;
 try {
-    const myRequests=await Request.find({reportedBy:id})
+    const myRequests=await Request.find({reportedBy:id}).sort({ createdAt: -1 })
     if(myRequests.length===0){
         return res.status(200).send({message:"No Requests Found"});
     }

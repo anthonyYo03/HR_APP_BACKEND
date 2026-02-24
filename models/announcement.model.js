@@ -21,5 +21,7 @@ createdBy:{type:mongoose.Schema.Types.ObjectId,ref:'User',required:true},
 
 )
 
+announcementSchema.index({title:1,createdBy:1});
+
 const Announcement = mongoose.model("Announcement",announcementSchema);
 export default Announcement;

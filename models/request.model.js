@@ -47,6 +47,7 @@ trim:true
 
 },{timestamps:true})
 
+requestSchema.index({ reportedBy: 1, leave_type: 1 });
 
 const Request=mongoose.model("Request",requestSchema);
 
