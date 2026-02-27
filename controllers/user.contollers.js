@@ -104,7 +104,7 @@ const loginUser = async (req, res) => {
     const payload = { userId: user._id };
     const token = generateToken(payload);
     res.cookie('token', token, { httpOnly: true });
-    res.status(200).json({ message: 'Login successful' });
+    res.status(200).json({ message: 'Login successful',role:user.role });
   } catch (error) {
     console.log(error);
     res.status(500).send({ message: `An error occurred while logging in ${error}` });
