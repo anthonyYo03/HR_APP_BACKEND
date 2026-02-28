@@ -72,10 +72,10 @@ const myTasks=await Task.find({assignedTo:id}).sort({ createdAt: -1 })
 
 
 if(myTasks.length===0){
-    return res.status(200).send({myTasks});
+    return res.status(200).send(myTasks);
 }
 
-res.status(200).send({myTasks});
+res.status(200).send(myTasks);
     
 } 
 catch (error) {

@@ -46,7 +46,7 @@ if(allRequest.length===0){
     return res.status(200).send("No Requests Found");
 }
 
-res.status(200).send({allRequest});
+res.status(200).send(allRequest);
 
 
 } catch (error) {
@@ -62,7 +62,7 @@ try {
     if(myRequests.length===0){
         return res.status(200).send({message:"No Requests Found"});
     }
-    res.status(200).send({myRequests});
+    res.status(200).send(myRequests);
 } catch (error) {
     res.status(500).send({message:`Cannot get Requests ${error}`})
 }
@@ -88,7 +88,7 @@ try {
 
 
 
-    res.status(200).send({myRequests});
+    res.status(200).send(myRequests);
 } catch (error) {
     res.status(500).send({message:`Cannot get Requests ${error}`})
 }

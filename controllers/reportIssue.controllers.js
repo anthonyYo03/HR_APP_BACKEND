@@ -43,7 +43,7 @@ const allIssues=await ReportIssue.find({}).sort({ createdAt: -1 });
 if(allIssues.length===0){
    return res.status(200).send({message:"No issue Found"})
 }
-res.status(200).send({allIssues});
+res.status(200).send(allIssues);
 }
 catch(error){
     res.status(500).send({message:`Cannot get all issues:${error}`});
@@ -59,7 +59,7 @@ try {
     if(myIssues.length===0){
     return res.status(200).send({message:"My issues not found"})    
     }
-    res.status(200).send({myIssues});
+    res.status(200).send(myIssues);
 
 } catch (error) {
     res.status(500).send({message:"Cannot get my issues"})
@@ -86,7 +86,7 @@ const {id}=req.params;
     }
     //
 
-res.status(200).send({oneIssue});
+res.status(200).send(oneIssue);
 }
 catch(error){
 res.status(500).send({message:"Could not get issue",error});
@@ -113,7 +113,7 @@ const updateIssueStatus = async (req, res) => {
       relatedModel: "ReportIssue"
     });
 
-    res.status(200).send({ updatedIssue });
+    res.status(200).send(updatedIssue);
   } catch (error) {
     res.status(500).send({ message: "Cannot update issue", error });
   }

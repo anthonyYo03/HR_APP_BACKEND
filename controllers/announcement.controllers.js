@@ -38,7 +38,7 @@ if(announcements.length===0){
      return res.status(200).send({ message: "No announcements found" });
  } 
 
-res.status(200).send({announcements});
+res.status(200).send(announcements);
 
 
 } catch (error) {
