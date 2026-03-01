@@ -39,7 +39,7 @@ const createIssue = async (req, res) => {
 
 const getAllIssues = async (req, res) => {
 try{
-const allIssues=await ReportIssue.find({}).sort({ createdAt: -1 });
+const allIssues=await ReportIssue.find({}).populate("reportedBy", "username email").sort({ createdAt: -1 });
 if(allIssues.length===0){
    return res.status(200).send({message:"No issue Found"})
 }
@@ -57,7 +57,7 @@ const id=req.userId;
 try {
     const myIssues=await ReportIssue.find({reportedBy:id}).sort({ createdAt: -1 })
     if(myIssues.length===0){
-    return res.status(200).send({message:"My issues not found"})    
+    return res.status(200).send([]);
     }
     res.status(200).send(myIssues);
 
