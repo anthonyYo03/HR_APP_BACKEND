@@ -268,7 +268,7 @@ if (!validator.isStrongPassword(password)) {
 
 const getUsers = async (req, res) => {
   try {
-    const users = await User.find({}); // Changed from findOne to find
+    const users = await User.find({role:"Employee"}); // Changed from findOne to find
     res.json(users);
   } catch (error) {
     console.log(error);

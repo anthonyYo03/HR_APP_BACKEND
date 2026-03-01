@@ -7,7 +7,11 @@ const createTask = async (req, res) => {
   const id = req.userId;
 
   try {
-    const newTask = await Task.create({ createdBy: id, name, description, dueDate, priority, assignedTo });
+    const newTask =await Task.create({ createdBy: id, name, description, dueDate, priority, assignedTo })
+   await newTask.populate([
+  { path: "createdBy", select: "username email" },
+  { path: "assignedTo", select: "username email" }
+]);
 
     // Notify the assigned employee
     await sendNotification({
@@ -29,11 +33,14 @@ const createTask = async (req, res) => {
 const getAllTasks=async(req,res)=>{
 
     try {
-const allTasks=await Task.find({}).sort({ createdAt: -1 });
+const allTasks=await Task.find({})
+.populate("createdBy", "username role")
+.populate("assignedTo", "username role")
+.sort({ createdAt: -1 });
 if(allTasks.length===0){
     return res.status(200).send({message:"Task not found"})
 }
-res.status(200).send({allTasks});
+res.status(200).send(allTasks);
     } catch (error) {
         return res.status(500).send({message:`Cannot get tasks ${error}`})
     }
@@ -43,7 +50,10 @@ res.status(200).send({allTasks});
 const getOneTask = async (req, res) => {
   const { id } = req.params;
   try {
-    const task = await Task.findById(id);
+    const task = await Task.findById(id)
+    .populate("createdBy", "username")
+    .populate("assignedTo", "username");
+    ;
     if (!task) return res.status(404).send({ message: "Task not found" });
 
     // 

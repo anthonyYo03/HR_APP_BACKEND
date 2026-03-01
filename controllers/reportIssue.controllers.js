@@ -71,7 +71,7 @@ try {
 const getOneIssue = async (req, res) => {
 const {id}=req.params;
     try{
- const oneIssue=await ReportIssue.findById(id);
+ const oneIssue=await ReportIssue.findById(id).populate("reportedBy", "username");
  if(!oneIssue){
 
     return res.status(404).send({message:"Issue Not Found"});
