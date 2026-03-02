@@ -57,15 +57,15 @@ const getOneTask = async (req, res) => {
     if (!task) return res.status(404).send({ message: "Task not found" });
 
     // 
-    const user = await User.findById(req.userId);
-    const isHR = user.role === "HR";
-    const isAssigned = task.assignedTo.toString() === req.userId;
-    if (!isHR && !isAssigned) {
-      return res.status(403).send({ message: "Access Denied!" });
-    }
+    // const user = await User.findById(req.userId);
+    // const isHR = user.role === "HR";
+    // const isAssigned = task.assignedTo.toString() === req.userId;
+    // if (!isHR && !isAssigned) {
+    //   return res.status(403).send({ message: "Access Denied!" });
+    // }
     //
 
-    res.status(200).send({ oneTask: task });
+    res.status(200).send(task);
   } catch (error) {
     res.status(500).send(`Cannot get task ${error}`);
   }
