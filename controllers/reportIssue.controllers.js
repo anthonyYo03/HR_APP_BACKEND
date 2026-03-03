@@ -78,12 +78,12 @@ const {id}=req.params;
  }
 
    // 
-    const user = await User.findById(req.userId);
-    const isHR = user.role === "HR";
-    const isAssigned = oneIssue.reportedBy.toString() === req.userId;
-    if (!isHR && !isAssigned) {
-      return res.status(403).send({ message: "Access Denied!" });
-    }
+    // const user = await User.findById(req.userId);
+    // const isHR = user.role === "HR";
+    // const isAssigned = oneIssue.reportedBy.toString() === req.userId;
+    // if (!isHR && !isAssigned) {
+    //   return res.status(403).send({ message: "Access Denied!" });
+    // }
     //
 
 res.status(200).send(oneIssue);

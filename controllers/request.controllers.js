@@ -8,8 +8,8 @@ const createRequest = async (req, res) => {
   const userId = req.userId;
 
   try {
-    const request = await Request.create({ reportedBy: userId, leave_type, start_date, end_date, reason });
-
+    const request = await Request.create({ reportedBy: userId, leave_type, start_date, end_date, reason});
+  
     // Notify HR about the new leave request
     const hrIds = await getAllHRIds();
     await sendNotification({
@@ -41,7 +41,10 @@ const createRequest = async (req, res) => {
 const getAllRequests=async(req,res)=>{
 
 try {
-    const allRequest=await Request.find({}).sort({ createdAt: -1 });
+    const allRequest=await Request.find({}).sort({ createdAt: -1 })
+    .populate("reportedBy","username")
+    .populate("approvedBy","username")
+    ;
 if(allRequest.length===0){
     return res.status(200).send("No Requests Found");
 }
@@ -59,8 +62,10 @@ const getMyRequests=async(req,res)=>{
 const id=req.userId;
 try {
     const myRequests=await Request.find({reportedBy:id}).sort({ createdAt: -1 })
+     .populate("reportedBy", "username")
+     .populate("approvedBy", "username") 
     if(myRequests.length===0){
-        return res.status(200).send({message:"No Requests Found"});
+        return res.status(200).send([]);
     }
     res.status(200).send(myRequests);
 } catch (error) {
@@ -78,12 +83,12 @@ try {
     }
 
      // 
-    const user = await User.findById(req.userId);
-    const isHR = user.role === "HR";
-    const isAssigned = myRequests.reportedBy.toString() === req.userId;
-    if (!isHR && !isAssigned) {
-      return res.status(403).send({ message: "Access Denied!" });
-    }
+    // const user = await User.findById(req.userId);
+    // const isHR = user.role === "HR";
+    // const isAssigned = myRequests.reportedBy.toString() === req.userId;
+    // if (!isHR && !isAssigned) {
+    //   return res.status(403).send({ message: "Access Denied!" });
+    // }
     //
 
 
@@ -108,7 +113,7 @@ try {
     if(existing.status=="Approved" || existing.status=="Rejected"){
         return res.status(403).send({message:"Cannot edit request.Request status decision already taken by HR"});
     }
-     const editRequest=await Request.findByIdAndUpdate({_id:id},{leave_type,start_date,end_date,reason},{new:true})
+const editRequest=await Request.findByIdAndUpdate({_id:id},{leave_type,start_date,end_date,reason},{new:true})
 
  const hrIds = await getAllHRIds();
     await sendNotification({

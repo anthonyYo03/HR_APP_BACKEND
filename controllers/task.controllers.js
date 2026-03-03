@@ -38,7 +38,7 @@ const allTasks=await Task.find({})
 .populate("assignedTo", "username role")
 .sort({ createdAt: -1 });
 if(allTasks.length===0){
-    return res.status(200).send({message:"Task not found"})
+    return res.status(200).send([]);
 }
 res.status(200).send(allTasks);
     } catch (error) {
