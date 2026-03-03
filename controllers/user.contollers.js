@@ -5,6 +5,7 @@ import { generateToken } from '../middlewares/auth.js';
 import { generateOTP } from '../utils/otp.js';
 import { Resend } from 'resend';
 import { secretKey } from '../middlewares/config.js';
+import validator from "validator";
 
 const registerUser = async (req, res) => {
   const { email, username, password } = req.body;
@@ -191,7 +192,7 @@ const requestPasswordReset = async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    // const resetURL = `${process.env.FRONTEND_URL}/reset-password?id=${user._id}&token=${token}`;
+    const resetURL = `${process.env.FRONTEND_URL}/reset-password?id=${user._id}&token=${token}`;
 
     await resend.emails.send({
       from: 'onboarding@resend.dev', // or your verified domain

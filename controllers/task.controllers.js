@@ -78,6 +78,7 @@ const id=req.userId;
 
 try{
 const myTasks=await Task.find({assignedTo:id}).sort({ createdAt: -1 })
+.populate("createdBy","username")
 
 
 
