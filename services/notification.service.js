@@ -1,5 +1,6 @@
 import Notification from "../models/notification.model.js";
 import User from "../models/user.model.js";
+import { getIo } from "../utils/socketManager.js";
 
 export const sendNotification = async ({ recipients, type = "DEFAULT", title, message, relatedId = null, relatedModel = null }) => {
   try {
@@ -12,7 +13,24 @@ export const sendNotification = async ({ recipients, type = "DEFAULT", title, me
       relatedModel
     }));
 
-    await Notification.insertMany(notifications);
+    const saved = await Notification.insertMany(notifications);
+
+    const io = getIo();
+    if (io) {
+      saved.forEach((notification) => {
+        io.to(notification.recipient.toString()).emit('new-notification', {
+          _id: notification._id,
+          type: notification.type,
+          title: notification.title,
+          message: notification.message,
+          relatedId: notification.relatedId,
+          relatedModel: notification.relatedModel,
+          isRead: notification.isRead,
+          isHidden: notification.isHidden,
+          createdAt: notification.createdAt,
+        });
+      });
+    }
 
   } catch (error) {
     console.error("Notification error:", error);
