@@ -106,7 +106,12 @@ const loginUser = async (req, res) => {
 
     const payload = { userId: user._id };
     const token = generateToken(payload);
-    res.cookie('token', token, { httpOnly: true });
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // true in production
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 6 * 60 * 60 * 1000 // 6 hours
+    });
     res.status(200).json({ message: 'Login successful',role:user.role });
   } catch (error) {
     console.log(error);
