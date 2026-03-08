@@ -24,7 +24,8 @@ const io = new Server(httpServer, {
     origin: process.env.FRONTEND_URL,
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
-  }
+  },
+  transports: ['websocket'],
 });
 
 setIo(io);
