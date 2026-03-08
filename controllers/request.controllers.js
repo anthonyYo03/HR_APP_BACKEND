@@ -1,5 +1,4 @@
 import Request from "../models/request.model.js";
-import User from "../models/user.model.js";
 import { getAllHRIds,sendNotification } from "../services/notification.service.js";
 
 
@@ -45,9 +44,7 @@ try {
     .populate("reportedBy","username")
     .populate("approvedBy","username")
     ;
-if(allRequest.length===0){
-    return res.status(200).send("No Requests Found");
-}
+
 
 res.status(200).send(allRequest);
 
@@ -78,6 +75,8 @@ const getOneRequest=async(req,res)=>{
 const {id}=req.params;
 try {
     const myRequests=await Request.findById(id)
+     .populate("reportedBy", "username")
+      .populate("approvedBy", "username");
     if(!myRequests){
         return res.status(404).send({message:"No Requests Found"});
     }

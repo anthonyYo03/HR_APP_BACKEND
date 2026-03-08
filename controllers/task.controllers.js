@@ -1,5 +1,4 @@
 import Task from "../models/task.model.js";
-import User from "../models/user.model.js";
 import { getAllHRIds,sendNotification } from "../services/notification.service.js";
 // "NEW_TASK","UPDATE_TASK","UPDATE_TASK_STATUS"
 const createTask = async (req, res) => {

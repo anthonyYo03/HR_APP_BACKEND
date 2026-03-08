@@ -3,9 +3,11 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { generateToken } from '../middlewares/auth.js';
 import { generateOTP } from '../utils/otp.js';
-import { Resend } from 'resend';
 import { secretKey } from '../middlewares/config.js';
 import validator from "validator";
+import nodemailer from 'nodemailer';
+
+
 
 const registerUser = async (req, res) => {
   const { email, username, password } = req.body;
@@ -129,10 +131,19 @@ const logoutUser = (req, res) => {
 
 
 const sendOTPToEmail = async (email, otp) => {
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
 
-  await resend.emails.send({
-    from: 'onboarding@resend.dev',
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
     to: email,
     subject: 'Verify your email',
     html: `
@@ -176,10 +187,19 @@ const resendOTPToEmail = async (req, res) => {
 
 
 const requestPasswordReset = async (req, res) => {
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  const { email } = req.body;
   
+ const { email } = req.body; 
   try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "User doesn't exist" });
@@ -194,8 +214,8 @@ const requestPasswordReset = async (req, res) => {
 
     const resetURL = `${process.env.FRONTEND_URL}/reset-password?id=${user._id}&token=${token}`;
 
-    await resend.emails.send({
-      from: 'onboarding@resend.dev', // or your verified domain
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
       to: user.email,
       subject: 'Password Reset Request',
       html: `

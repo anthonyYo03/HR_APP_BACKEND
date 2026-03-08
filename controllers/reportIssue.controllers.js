@@ -1,5 +1,4 @@
 import ReportIssue from "../models/reportIssue.model.js";
-import User from "../models/user.model.js";
 import { getAllHRIds,sendNotification } from "../services/notification.service.js";
 
 const createIssue = async (req, res) => {
@@ -40,9 +39,6 @@ const createIssue = async (req, res) => {
 const getAllIssues = async (req, res) => {
 try{
 const allIssues=await ReportIssue.find({}).populate("reportedBy", "username email").sort({ createdAt: -1 });
-if(allIssues.length===0){
-   return res.status(200).send({message:"No issue Found"})
-}
 res.status(200).send(allIssues);
 }
 catch(error){

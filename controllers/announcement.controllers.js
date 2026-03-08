@@ -30,23 +30,14 @@ res.status(500).send({message:`Cannot create Announcement:${error}`})
 }
 
 
-const getAllAnnouncement=async(req,res)=>{
-
-try {
-    const announcements=await Announcement.find({}).sort({createdAt:-1});
-if(announcements.length===0){
-     return res.status(200).send({ message: "No announcements found" });
- } 
-
-res.status(200).send(announcements);
-
-
-} catch (error) {
-    res.status(500).send({message:"Announcements not found:",error})
-}
-
-}
-
+const getAllAnnouncement = async (req, res) => {
+  try {
+    const announcements = await Announcement.find({}).sort({ createdAt: -1 });
+    res.status(200).send(announcements); // Mongoose returns [] if empty, so this is fine
+  } catch (error) {
+    res.status(500).send({ message: "Announcements not found:", error });
+  }
+};
 
 const getOneAnnouncement=async(req,res)=>{
     const {id}=req.params;
