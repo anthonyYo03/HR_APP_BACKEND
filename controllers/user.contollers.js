@@ -58,7 +58,7 @@ const registerUser = async (req, res) => {
       // Roll back user creation so they can retry registration
       await User.deleteOne({ _id: newUser._id });
       console.error('Email sending failed:', emailError);
-      return res.status(500).send({ message: 'Failed to send verification email. Please check email configuration or try again later.' });
+      return res.status(500).send({ message: `Email error: ${emailError.message}` });
     }
 
     console.log(`OTP for ${email}: ${otp}`);
