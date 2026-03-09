@@ -145,8 +145,9 @@ const sendOTPToEmail = async (email, otp) => {
     tls: {
       rejectUnauthorized: false,
     },
+    connectionTimeout: 10000,
+    socketTimeout: 10000,
   });
-  await transporter.verify();
   await transporter.sendMail({
     from: process.env.EMAIL_USER,
     to: email,
