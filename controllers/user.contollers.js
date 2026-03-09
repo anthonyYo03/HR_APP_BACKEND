@@ -145,7 +145,9 @@ const logoutUser = (req, res) => {
 
 const sendOTPToEmail = async (email, otp) => {
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // TLS (not SSL), required for port 587
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
