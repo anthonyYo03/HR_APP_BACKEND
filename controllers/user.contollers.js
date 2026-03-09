@@ -133,20 +133,17 @@ const logoutUser = (req, res) => {
   }
 }
 
-
-
 const sendOTPToEmail = async (email, otp) => {
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // STARTTLS — required on Render (port 465/SSL is blocked)
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-    tls: {
-      rejectUnauthorized: false,
-    },
   });
-
+  await transporter.verify();
   await transporter.sendMail({
     from: process.env.EMAIL_USER,
     to: email,
@@ -196,13 +193,12 @@ const requestPasswordReset = async (req, res) => {
  const { email } = req.body; 
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
-      },
-      tls: {
-        rejectUnauthorized: false,
       },
     });
     const user = await User.findOne({ email });
