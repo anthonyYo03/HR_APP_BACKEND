@@ -5,10 +5,26 @@ import { generateToken } from '../middlewares/auth.js';
 import { generateOTP } from '../utils/otp.js';
 import { secretKey } from '../middlewares/config.js';
 import validator from "validator";
-import * as Brevo from '@getbrevo/brevo';
-
-const brevoClient = new Brevo.TransactionalEmailsApi();
-brevoClient.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
+const sendBrevoEmail = async (to, subject, html) => {
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'api-key': process.env.BREVO_API_KEY,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      sender: { name: 'HR App', email: 'antoyou78@gmail.com' },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
+  });
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.message || 'Failed to send email via Brevo');
+  }
+};
 
 
 
@@ -147,17 +163,16 @@ const logoutUser = (req, res) => {
 
 
 const sendOTPToEmail = async (email, otp) => {
-  const sendSmtpEmail = new Brevo.SendSmtpEmail();
-  sendSmtpEmail.sender = { name: 'HR App', email: 'antoyou78@gmail.com' };
-  sendSmtpEmail.to = [{ email }];
-  sendSmtpEmail.subject = 'Verify your email';
-  sendSmtpEmail.htmlContent = `
-    <h3>Email Verification</h3>
-    <p>Your OTP is:</p>
-    <h2>${otp}</h2>
-    <p>Expires in 10 minutes.</p>
-  `;
-  await brevoClient.sendTransacEmail(sendSmtpEmail);
+  await sendBrevoEmail(
+    email,
+    'Verify your email',
+    `
+      <h3>Email Verification</h3>
+      <p>Your OTP is:</p>
+      <h2>${otp}</h2>
+      <p>Expires in 10 minutes.</p>
+    `
+  );
 };
 
 const resendOTPToEmail = async (req, res) => {
@@ -209,18 +224,17 @@ const requestPasswordReset = async (req, res) => {
 
     const resetURL = `${process.env.FRONTEND_URL}/reset-password?id=${user._id}&token=${token}`;
 
-    const sendSmtpEmail = new Brevo.SendSmtpEmail();
-    sendSmtpEmail.sender = { name: 'HR App', email: 'antoyou78@gmail.com' };
-    sendSmtpEmail.to = [{ email: user.email }];
-    sendSmtpEmail.subject = 'Password Reset Request';
-    sendSmtpEmail.htmlContent = `
-      <h3>Password Reset Request</h3>
-      <p>Click the link below to reset your password:</p>
-      <a href="${resetURL}">Reset Password</a>
-      <p>Link: ${resetURL}</p>
-      <p>Expires in 1 hour.</p>
-    `;
-    await brevoClient.sendTransacEmail(sendSmtpEmail);
+    await sendBrevoEmail(
+      user.email,
+      'Password Reset Request',
+      `
+        <h3>Password Reset Request</h3>
+        <p>Click the link below to reset your password:</p>
+        <a href="${resetURL}">Reset Password</a>
+        <p>Link: ${resetURL}</p>
+        <p>Expires in 1 hour.</p>
+      `
+    );
 
     res.status(200).json({ message: 'Password reset link sent to your email' });
   } catch (error) {
