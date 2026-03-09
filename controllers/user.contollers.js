@@ -5,7 +5,10 @@ import { generateToken } from '../middlewares/auth.js';
 import { generateOTP } from '../utils/otp.js';
 import { secretKey } from '../middlewares/config.js';
 import validator from "validator";
-import nodemailer from 'nodemailer';
+import * as Brevo from '@getbrevo/brevo';
+
+const brevoClient = new Brevo.TransactionalEmailsApi();
+brevoClient.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
 
 
 
@@ -144,31 +147,17 @@ const logoutUser = (req, res) => {
 
 
 const sendOTPToEmail = async (email, otp) => {
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // TLS (not SSL), required for port 587
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-    tls: {
-      rejectUnauthorized: false,
-    },
-    connectionTimeout: 10000,
-    socketTimeout: 10000,
-  });
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: 'Verify your email',
-    html: `
-      <h3>Email Verification</h3>
-      <p>Your OTP is:</p>
-      <h2>${otp}</h2>
-      <p>Expires in 10 minutes.</p>
-    `,
-  });
+  const sendSmtpEmail = new Brevo.SendSmtpEmail();
+  sendSmtpEmail.sender = { name: 'HR App', email: 'antoyou78@gmail.com' };
+  sendSmtpEmail.to = [{ email }];
+  sendSmtpEmail.subject = 'Verify your email';
+  sendSmtpEmail.htmlContent = `
+    <h3>Email Verification</h3>
+    <p>Your OTP is:</p>
+    <h2>${otp}</h2>
+    <p>Expires in 10 minutes.</p>
+  `;
+  await brevoClient.sendTransacEmail(sendSmtpEmail);
 };
 
 const resendOTPToEmail = async (req, res) => {
@@ -206,20 +195,6 @@ const requestPasswordReset = async (req, res) => {
   
  const { email } = req.body; 
   try {
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-      connectionTimeout: 10000,
-      socketTimeout: 10000,
-    });
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "User doesn't exist" });
@@ -234,18 +209,18 @@ const requestPasswordReset = async (req, res) => {
 
     const resetURL = `${process.env.FRONTEND_URL}/reset-password?id=${user._id}&token=${token}`;
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: user.email,
-      subject: 'Password Reset Request',
-      html: `
-        <h3>Password Reset Request</h3>
-        <p>Click the link below to reset your password:</p>
-        <a href="${resetURL}">Reset Password</a>
-        <p>Link: ${resetURL}</p>
-        <p>Expires in 1 hour.</p>
-      `,
-    });
+    const sendSmtpEmail = new Brevo.SendSmtpEmail();
+    sendSmtpEmail.sender = { name: 'HR App', email: 'antoyou78@gmail.com' };
+    sendSmtpEmail.to = [{ email: user.email }];
+    sendSmtpEmail.subject = 'Password Reset Request';
+    sendSmtpEmail.htmlContent = `
+      <h3>Password Reset Request</h3>
+      <p>Click the link below to reset your password:</p>
+      <a href="${resetURL}">Reset Password</a>
+      <p>Link: ${resetURL}</p>
+      <p>Expires in 1 hour.</p>
+    `;
+    await brevoClient.sendTransacEmail(sendSmtpEmail);
 
     res.status(200).json({ message: 'Password reset link sent to your email' });
   } catch (error) {
