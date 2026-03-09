@@ -5,28 +5,15 @@ import { generateToken } from '../middlewares/auth.js';
 import { generateOTP } from '../utils/otp.js';
 import { secretKey } from '../middlewares/config.js';
 import validator from "validator";
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-// ─── Shared transporter (created once, reused) ───────────────────────────────
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // STARTTLS
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  // CRITICAL: Add timeouts so it never hangs forever
-  connectionTimeout: 10000, // 10s to connect
-  greetingTimeout: 10000,   // 10s for SMTP greeting
-  socketTimeout: 15000,     // 15s for socket inactivity
-});
+// ─── Resend client (HTTP API — works on Render free tier) ─────────────────────
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ─── Helper: send OTP email ───────────────────────────────────────────────────
 const sendOTPToEmail = async (email, otp) => {
-  // NOTE: removed transporter.verify() — it causes hangs and is not needed per send
-  await transporter.sendMail({
-    from: process.env.EMAIL_USER,
+  await resend.emails.send({
+    from: 'onboarding@resend.dev', // Use this until you verify your own domain
     to: email,
     subject: 'Verify your email',
     html: `
@@ -61,12 +48,10 @@ const registerUser = async (req, res) => {
       isVerified: false,
     });
 
-    // Send email FIRST — if it fails, return error immediately (don't leave user stuck)
     try {
       await sendOTPToEmail(email, otp);
     } catch (emailError) {
       console.error('❌ Failed to send OTP email:', emailError.message);
-      // Clean up the unverified user so they can retry registration
       await User.deleteOne({ email });
       return res.status(500).send({
         message: 'Account created but failed to send verification email. Please try again.',
@@ -193,8 +178,8 @@ const requestPasswordReset = async (req, res) => {
     const resetURL = `${process.env.FRONTEND_URL}/reset-password?id=${user._id}&token=${token}`;
 
     try {
-      await transporter.sendMail({
-        from: process.env.EMAIL_USER,
+      await resend.emails.send({
+        from: 'onboarding@resend.dev', // Use this until you verify your own domain
         to: user.email,
         subject: 'Password Reset Request',
         html: `
