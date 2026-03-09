@@ -24,7 +24,7 @@ const registerUser = async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
 
     // Create user but mark as NOT verified
-    await User.create({ 
+    const newUser = await User.create({ 
       email, 
       username, 
       password: hash, 
@@ -32,13 +32,21 @@ const registerUser = async (req, res) => {
       otpExpires,
       isVerified: false 
     });
-   await sendOTPToEmail(email, otp);
-    // TODO: Send OTP via email here
+
+    try {
+      await sendOTPToEmail(email, otp);
+    } catch (emailError) {
+      // Roll back user creation so they can retry registration
+      await User.deleteOne({ _id: newUser._id });
+      console.error('Email sending failed:', emailError);
+      return res.status(500).send({ message: 'Failed to send verification email. Please check email configuration or try again later.' });
+    }
+
     console.log(`OTP for ${email}: ${otp}`);
 
     res.status(201).send({ 
       message: 'User registered. Please verify OTP sent to your email.',
-      email // Send email back so frontend knows where to send verification
+      email
     });
   } catch (error) {
     console.log(error);
