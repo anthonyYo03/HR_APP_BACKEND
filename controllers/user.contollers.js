@@ -207,7 +207,9 @@ const requestPasswordReset = async (req, res) => {
  const { email } = req.body; 
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -215,6 +217,8 @@ const requestPasswordReset = async (req, res) => {
       tls: {
         rejectUnauthorized: false,
       },
+      connectionTimeout: 10000,
+      socketTimeout: 10000,
     });
     const user = await User.findOne({ email });
     if (!user) {

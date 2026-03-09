@@ -68,7 +68,7 @@ app.use('/request',requestsRoutes);
 app.use('/task',taskRoutes);
 app.use('/notification',notificationRoutes);
 
-const port=process.env.PORT
+const port = process.env.PORT || 10000;
 httpServer.listen(port,()=>{
     console.log(`Server is listening on port ${port}`);
 })
