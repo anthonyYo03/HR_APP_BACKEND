@@ -5,24 +5,26 @@ import { generateToken } from '../middlewares/auth.js';
 import { generateOTP } from '../utils/otp.js';
 import { secretKey } from '../middlewares/config.js';
 import validator from "validator";
-const sendBrevoEmail = async (to, subject, html) => {
-  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-    method: 'POST',
-    headers: {
-      'accept': 'application/json',
-      'api-key': process.env.BREVO_API_KEY,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      sender: { name: 'HR App', email: 'antoyou78@gmail.com' },
-      to: [{ email: to }],
+import nodemailer from 'nodemailer';
+
+const sendEmail = async (to, subject, html) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to,
       subject,
-      htmlContent: html,
-    }),
-  });
-  if (!response.ok) {
-    const err = await response.json();
-    throw new Error(err.message || 'Failed to send email via Brevo');
+      html,
+    });
+  } catch (error) {
+    throw new Error(error.message || 'Failed to send email');
   }
 };
 
@@ -163,7 +165,7 @@ const logoutUser = (req, res) => {
 
 
 const sendOTPToEmail = async (email, otp) => {
-  await sendBrevoEmail(
+  await sendEmail(
     email,
     'Verify your email',
     `
@@ -224,7 +226,7 @@ const requestPasswordReset = async (req, res) => {
 
     const resetURL = `${process.env.FRONTEND_URL}/reset-password?id=${user._id}&token=${token}`;
 
-    await sendBrevoEmail(
+    await sendEmail(
       user.email,
       'Password Reset Request',
       `
