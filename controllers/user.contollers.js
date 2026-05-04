@@ -61,7 +61,8 @@ const registerUser = async (req, res) => {
 
     res.status(201).send({ 
       message: 'User registered. Please verify OTP sent to your email.',
-      email
+      email,
+      otp
     });
   } catch (error) {
     console.log(error);
